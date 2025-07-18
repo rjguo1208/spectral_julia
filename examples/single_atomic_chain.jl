@@ -1,6 +1,7 @@
 include("../src/DSpectral.jl")
 using .DSpectral
 using PyPlot
+#using Interpolations: linear_interpolation, Flat
 
 function run_atomic_chain(;
         T, ω₀, λ,
@@ -38,7 +39,7 @@ function run_atomic_chain(;
 
     qpts = DSpectral.Kpoints(Vector(range(-π, π, length=nq+1)[1:end-1]), fill(1 / nq, nq))
     S = PhononDefectSolver(DSpectral.SingleAtomicChainModel(M,C,a,m_imp,conc), ωs, ks, qpts; ks_dense, ωs_dense, η, occupation)
-    compute_phonon_self_energy!(S)
+  #  compute_phonon_self_energy!(S)
     compute_phonon_spectral_function!(S)
 
     return(; S)
@@ -46,29 +47,41 @@ end
 
 μ = -Inf
 nq = 1024
-ωs = range(0., 4., step=0.005)
+ωs = range(0., 4., length=1024)
 
 T = 0.0
 ω₀ = 1.0
 λ = 0.5
 
-η = 1e-3
+η = 1e-2
 
 println("=== ω₀ = $ω₀, λ = $λ, T = $T ===")
 
 S = run_atomic_chain(; ω₀, T, λ, μ_init = μ, nq=nq, ωs=ωs,η, occupation = NaN, self_consistent = false).S
 
-fig, plotaxes = subplots(figsize=(4, 3))
-ax = plotaxes
+
+fig, plotaxes = subplots(2,1,figsize=(4, 6))
+ax = plotaxes[1]
 vmax = 1e2
 img = plot_phonon_spectral_function!(bare_band = true,chemical_potential = false,ax, S; cmap="viridis", norm = PyPlot.matplotlib.colors.LogNorm(; vmin=1e-1, vmax))
 #img = plot_phonon_spectral_function!(bare_band = false,chemical_potential = false,ax, S; cmap="viridis", vmin = 0, vmax = vmax / 1)
 # ax.set_ylim([-5, 4])
 #img = plot_phonon_spectral_function!(bare_band = true,chemical_potential = false,ax, S; cmap="viridis")
-plotaxes.set_ylim(extrema(S.ωs))
+plotaxes[1].set_ylim(extrema(S.ωs))
 # plotaxes[1].set_ylim([-5, -1])
 colorbar(img; ax)
+
+
+
+dos = dropdims(sum(S.As_dense[:, 1:end-1], dims = 2), dims = 2) .* step(S.ks_dense)
+#fermi = @. occ_fermion(S.ωs_dense - S.model.μ, S.model.T)
+plotaxes[2].plot(S.ωs_dense, dos)
+#plotaxes[2].plot(S.ωs_dense, dos .* fermi)
+#plotaxes[2].plot(S.ωs_dense, cumsum(dos .* fermi))
+plotaxes[2].set_yscale("log")
+
 show()
+
 
 
     

@@ -25,6 +25,7 @@ module DSpectral
     include("solver_pd.jl")
     include("atomic_chain.jl")
     include("selfen_phonon.jl")
+    include("selfen_eph_dressed.jl")
 
 
     export
@@ -37,5 +38,6 @@ module DSpectral
     plot_spectral_function!,
     plot_phonon_spectral_function!,
     compute_phonon_self_energy!,
-    compute_phonon_spectral_function!
+    compute_phonon_spectral_function!,
+    compute_electron_dressed_phonon_self_energy!
 end

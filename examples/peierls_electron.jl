@@ -6,7 +6,7 @@ function run_peierls(;
         T, ω₀, λ,
         t = 1.0,
         occupation = 1e-4,
-        μ_init = -2.0,
+        μ_init = -0.0,
         nq = 128,
         ωs = range(-8., 8., step=0.01),
         η = 0.0,
@@ -22,7 +22,7 @@ function run_peierls(;
 
     g = sqrt(λ * ω₀ * t / 2)
 
-    μ = μ_init
+    μ = 0.0
     # μ = -Inf
     # occupation = NaN
 
@@ -44,9 +44,9 @@ function run_peierls(;
 end
 
 
-μ = -Inf
+μ = -2.0
 nq = 512
-ωs = range(-8., 8., step=0.02)
+ωs = range(-4., 4., length=512)
 
 T = 0.0
 ω₀ = 1.0
